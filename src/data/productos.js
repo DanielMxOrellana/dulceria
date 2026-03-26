@@ -1,0 +1,63 @@
+export const dulces = [
+  { id: 1, nombre: "Galletas Con Mermelada", precio: 0.25, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "/img/dulces/galletas-con-merleada.jpg", descripcion: "Dulce tradicional" },
+  { id: 2, nombre: "Arepas", precio: 0.25, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "/img/dulces/arepas.jpg", descripcion: "Dulce tradicional" },
+  { id: 3, nombre: "Aplanchados", precio: 0.25, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "/img/dulces/aplanchados.jpg", descripcion: "Dulce tradicional" },
+  { id: 4, nombre: "Roscas De Viento", precio: 0.30, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "", descripcion: "Dulce tradicional" },
+  { id: 5, nombre: "Suspiros", precio: 0.15, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "", descripcion: "Dulce tradicional" },
+  { id: 6, nombre: "Chocolate Blanco", precio: 0.30, disponible: true, cantidad: 100, categoria: "chocolates", imagen: "", descripcion: "Dulce tradicional" },
+  { id: 7, nombre: "Frutitas De Manjar", precio: 0.25, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "", descripcion: "Dulce tradicional" },
+  { id: 8, nombre: "Media Nuez", precio: 0.25, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "", descripcion: "Dulce tradicional" },
+  { id: 9, nombre: "Coco Con Chocolate Blanco", precio: 0.30, disponible: true, cantidad: 100, categoria: "chocolates", imagen: "", descripcion: "Dulce tradicional" },
+  { id: 10, nombre: "Bolitas De Coco", precio: 0.25, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "", descripcion: "Dulce tradicional" },
+  { id: 11, nombre: "Rosados De Maiz", precio: 0.25, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "", descripcion: "Dulce tradicional" },
+  { id: 12, nombre: "Anizados De Maiz", precio: 0.25, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "", descripcion: "Dulce tradicional" },
+  { id: 13, nombre: "Cachitos De Manjar", precio: 0.25, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "", descripcion: "Dulce tradicional" },
+  { id: 14, nombre: "Enrollados De Manjar", precio: 0.20, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "/img/dulces/enrollados-de-manjar.png", descripcion: "Dulce tradicional" },
+  { id: 15, nombre: "Quesitos De Manjar", precio: 0.15, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "/img/dulces/quesitos-de-manjar.png", descripcion: "Dulce tradicional" },
+  { id: 16, nombre: "Turron", precio: 0.20, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "", descripcion: "Dulce tradicional" },
+  { id: 17, nombre: "Alfajores", precio: 0.35, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "", descripcion: "Dulce tradicional" },
+  { id: 18, nombre: "Galletas De Coco", precio: 0.25, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "", descripcion: "Dulce tradicional" },
+  { id: 19, nombre: "Quesadillas", precio: 0.35, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "", descripcion: "Dulce tradicional" },
+  { id: 20, nombre: "Roscas De Mantequilla", precio: 0.25, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "/img/dulces/roscas-de-mantequilla.png", descripcion: "Dulce tradicional" },
+  { id: 21, nombre: "Tangos", precio: 0.60, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "/img/dulces/tangos.png", descripcion: "Dulce tradicional" },
+  { id: 22, nombre: "Roscas De Chocolate", precio: 0.40, disponible: true, cantidad: 100, categoria: "chocolates", imagen: "/img/dulces/roscas-de-chocolate.jpg", descripcion: "Dulce tradicional" },
+  { id: 23, nombre: "Roscas De Chocolate Blanco", precio: 0.40, disponible: true, cantidad: 100, categoria: "chocolates", imagen: "/img/dulces/roscas-de-chocolate-blanco.png", descripcion: "Dulce tradicional" },
+  { id: 24, nombre: "Chocolate Negro", precio: 0.30, disponible: true, cantidad: 100, categoria: "chocolates", imagen: "/img/dulces/chocolate-negro.png", descripcion: "Dulce tradicional" },
+  { id: 25, nombre: "Cascaras De Naranja", precio: 0.30, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "/img/dulces/cascaras-de-naranja.png", descripcion: "Dulce tradicional" },
+  { id: 26, nombre: "Datiles", precio: 0.30, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "/img/dulces/datiles.png", descripcion: "Dulce tradicional" },
+  { id: 27, nombre: "Bocadillos De Babaco", precio: 0.25, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "/img/dulces/bocadillos-de-babaco.png", descripcion: "Dulce tradicional" },
+  { id: 28, nombre: "Coco Con Chocolate Negro", precio: 0.30, disponible: true, cantidad: 100, categoria: "chocolates", imagen: "/img/dulces/coco-con-chocolate-negro.png", descripcion: "Dulce tradicional" },
+  { id: 29, nombre: "Guayaba Con Chocolate", precio: 0.30, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "/img/dulces/guayaba-con-chocolate.png", descripcion: "Dulce tradicional" },
+  { id: 30, nombre: "Cocada De 2 Colores", precio: 0.25, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "/img/dulces/cocada-de-2-colores.png", descripcion: "Dulce tradicional" },
+  { id: 31, nombre: "Nogada", precio: 0.25, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "/img/dulces/nogada.png", descripcion: "Dulce tradicional" },
+  { id: 32, nombre: "Huevitos De Faltriquera", precio: 0.25, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "/img/dulces/huevitos-de-faltriquera.png", descripcion: "Dulce tradicional" },
+  { id: 33, nombre: "Huevitos De Mani", precio: 0.25, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "/img/dulces/huevos-de-mani.png", descripcion: "Dulce tradicional" },
+  { id: 34, nombre: "Cocada De Horno", precio: 0.25, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "/img/dulces/cocada-de-horno.png", descripcion: "Dulce tradicional" },
+  { id: 35, nombre: "Cocada De Panela", precio: 0.50, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "/img/dulces/cocadas-panela.png", descripcion: "Dulce tradicional" },
+  { id: 36, nombre: "Suspiros", precio: 0.05, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "/img/dulces/suspiros.png", descripcion: "Dulce tradicional" },
+  { id: 37, nombre: "Frutitas Naturales", precio: 0.25, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "/img/dulces/frutitas-naturales.png", descripcion: "Dulce tradicional" },
+  { id: 38, nombre: "Guayaba Con Manjar", precio: 0.30, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "/img/dulces/manjar-y-guayaba.png", descripcion: "Dulce tradicional" },
+  { id: 39, nombre: "Cortados De Guayaba", precio: 0.25, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "/img/dulces/cortados-de-guayaba.png", descripcion: "Dulce tradicional" },
+  { id: 40, nombre: "Higos Confitados", precio: 0.35, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "/img/dulces/higos-confitados.png", descripcion: "Dulce tradicional" },
+];
+
+export const tiposFundas = [
+  { id: "funda", nombre: "Funda Pequeña", precio: 1.00, descripcion: "Funda de celofán para compartir", emoji: "🛍️", min: 1, max: 1 },
+];
+
+export const tiposDesechables = [
+  { id: "desechable_s", nombre: "Caja Desechable S", precio: 5.00, descripcion: "Caja de 250ml perfecta para degustaciones", emoji: "📦", capacidadMax: 15 },
+  { id: "desechable_m", nombre: "Caja Desechable M", precio: 8.00, descripcion: "Caja de 500ml ideal para regalos medianos", emoji: "📦", capacidadMax: 25 },
+  { id: "desechable_l", nombre: "Caja Desechable L", precio: 12.00, descripcion: "Caja de 1L para surtidos especiales", emoji: "📦", capacidadMax: 40 },
+];
+
+export const tiposCanastos = [
+  { id: "canasto_s", nombre: "Canasto Pequeño", precio: 3.00, descripcion: "Canasto artesanal 20×15cm", emoji: "🧺", capacidadMax: 20 },
+  { id: "canasto_5", nombre: "Canasto Pequeño Plus", precio: 5.00, descripcion: "Canasto artesanal 24×18cm", emoji: "🧺", capacidadMax: 28 },
+  { id: "canasto_7", nombre: "Canasto Mediano", precio: 7.00, descripcion: "Canasto artesanal 28×22cm", emoji: "🧺", capacidadMax: 35 },
+  { id: "canasto_10", nombre: "Canasto Mediano Plus", precio: 10.00, descripcion: "Canasto artesanal 32×25cm", emoji: "🧺", capacidadMax: 45 },
+  { id: "canasto_15", nombre: "Canasto Grande", precio: 15.00, descripcion: "Canasto artesanal 40×35cm", emoji: "🧺", capacidadMax: 60 },
+  { id: "canasto_20", nombre: "Canasto XL Premium", precio: 20.00, descripcion: "Canasto artesanal 50×45cm con moño", emoji: "🧺", capacidadMax: 100 },
+  { id: "canasto_25", nombre: "Canasto Deluxe", precio: 25.00, descripcion: "Canasto artesanal 55×45cm con decoración", emoji: "🧺", capacidadMax: 125 },
+  { id: "canasto_30", nombre: "Canasto Especial", precio: 30.00, descripcion: "Canasto artesanal 60×50cm premium", emoji: "🧺", capacidadMax: 150 },
+];

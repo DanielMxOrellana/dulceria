@@ -1,0 +1,28 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: dulceria-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: dulceria
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+    container_name: dulceria-backend
+    ports:
+      - "4000:4000"
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+volumes:
+  pgdata:
