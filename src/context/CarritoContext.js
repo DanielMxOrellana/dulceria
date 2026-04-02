@@ -12,8 +12,13 @@ export const CarritoProvider = ({ children }) => {
 
   const [pedidosFinalizados, setPedidosFinalizados] = useState([]);
 
-  const setContenedor = (tipo, data) => {
-    setPedido(prev => ({ ...prev, contenedor: { tipo, data }, items: [] }));
+  const setContenedor = (tipo, data, options = {}) => {
+    const { preserveItems = false } = options;
+    setPedido(prev => ({
+      ...prev,
+      contenedor: { tipo, data },
+      items: preserveItems ? prev.items : [],
+    }));
   };
 
   const agregarDulce = (dulce, cantidad) => {

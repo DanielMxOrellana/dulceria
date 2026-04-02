@@ -13,9 +13,10 @@ const ORDERS_PROVIDER = (process.env.REACT_APP_ORDERS_PROVIDER || 'api').toLower
 
 export default function ArmarPedido() {
   const navigate = useNavigate();
-  const { pedido, setContenedor, agregarDulce, actualizarCantidad, quitarDulce, setNota, total, subtotalDulces, costoContenedor, finalizarPedido } = useCarrito();
+  const { pedido, setContenedor, agregarDulce, actualizarCantidad, quitarDulce, setNota, total, totalDulces, subtotalDulces, costoContenedor, finalizarPedido } = useCarrito();
   const [paso, setPaso] = useState(PASO_CONTENEDOR);
   const [tipoPrincipal, setTipoPrincipal] = useState('');
+  const [fallosImagen, setFallosImagen] = useState({});
   const [cantTemp, setCantTemp] = useState({});
   const [customerCedula, setCustomerCedula] = useState('');
   const [customerName, setCustomerName] = useState('');
@@ -54,10 +55,38 @@ export default function ArmarPedido() {
   }, []);
 
   const tipos = [
-    { key: 'funda', label: 'Funda', emoji: '🛍️', desc: 'Funda de celofán — $1.00' },
-    { key: 'desechable', label: 'Caja Desechable', emoji: '📦', desc: 'Desde $5.00' },
+    { key: 'funda', label: 'Funda', emoji: '🛍️', desc: 'Automática según cantidad' },
+    { key: 'desechable', label: 'Caja Desechable', emoji: '📦', desc: 'Automática desde $3.00 hasta $15.00' },
     { key: 'canasto', label: 'Canasto', emoji: '🧺', desc: 'Desde $3.00 (aparte)' },
   ];
+
+  const getOpcionPorCantidad = (opciones, cantidadTotal) => {
+    const cantidad = Math.max(1, Number(cantidadTotal) || 1);
+    return opciones.find((opcion) => cantidad <= (opcion.capacidadMax || Infinity)) || opciones[opciones.length - 1];
+  };
+
+  const getFundaRecomendada = (cantidadTotal) => {
+    return getOpcionPorCantidad(tiposFundas, cantidadTotal);
+  };
+
+  const getDesechableRecomendado = (cantidadTotal) => {
+    return getOpcionPorCantidad(tiposDesechables, cantidadTotal);
+  };
+
+  useEffect(() => {
+    const tipoContenedor = pedido.contenedor?.tipo;
+    if (tipoContenedor !== 'funda' && tipoContenedor !== 'desechable') return;
+    if (!pedido.items.length) return;
+
+    const opcionRecomendada = tipoContenedor === 'funda'
+      ? getFundaRecomendada(totalDulces)
+      : getDesechableRecomendado(totalDulces);
+
+    if (!opcionRecomendada) return;
+    if (pedido.contenedor?.data?.id === opcionRecomendada.id) return;
+
+    setContenedor(tipoContenedor, opcionRecomendada, { preserveItems: true });
+  }, [pedido.contenedor?.tipo, pedido.contenedor?.data?.id, pedido.items.length, setContenedor, totalDulces]);
 
   const getOpciones = () => {
     if (tipoPrincipal === 'funda') return tiposFundas;
@@ -291,9 +320,15 @@ export default function ArmarPedido() {
               <p className="paso-desc">
                 Empaque: <strong>{pedido.contenedor?.data?.nombre}</strong> — ${pedido.contenedor?.data?.precio?.toFixed(2)}
               </p>
+              {(pedido.contenedor?.tipo === 'funda' || pedido.contenedor?.tipo === 'desechable') && pedido.items.length > 0 && (
+                <p className="paso-desc funda-auto-note">
+                  El empaque se ajusta solo segun la cantidad de dulces ({totalDulces} seleccionados).
+                </p>
+              )}
             </div>
             <div className="resumen-mini">
               <span>🛒 {pedido.items.length} tipos</span>
+              <span>🍬 {totalDulces} dulces</span>
               <span>Empaque: ${costoContenedor.toFixed(2)}</span>
               <span>Dulces: ${subtotalDulces.toFixed(2)}</span>
               <span className="resumen-mini-total">Total: ${total.toFixed(2)}</span>
@@ -306,15 +341,22 @@ export default function ArmarPedido() {
           <div className="dulces-order-grid">
             {disponibles.map(dulce => {
               const enPedido = getItemQty(dulce.id);
+              const imagenDisponible = Boolean(dulce.imagen) && !fallosImagen[dulce.id];
               return (
                 <div key={dulce.id} className={`dulce-order-card ${enPedido > 0 ? 'en-pedido' : ''}`}>
+                  {imagenDisponible && (
+                    <div className="doc-image-preview" aria-hidden="true">
+                      <img src={dulce.imagen} alt={dulce.nombre} loading="lazy" />
+                    </div>
+                  )}
                   <div className="doc-top">
-                    {dulce.imagen ? (
+                    {imagenDisponible ? (
                       <img
                         src={dulce.imagen}
                         alt={dulce.nombre}
                         className="doc-thumb"
                         loading="lazy"
+                        onError={() => setFallosImagen(prev => ({ ...prev, [dulce.id]: true }))}
                       />
                     ) : (
                       <span className="doc-thumb-placeholder">IMG</span>

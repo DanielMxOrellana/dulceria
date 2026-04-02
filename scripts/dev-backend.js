@@ -79,7 +79,6 @@ async function main() {
   const child = spawn("node", ["src/index.js"], {
     cwd: `${__dirname}/../backend`,
     stdio: "inherit", // Mostrar todos los logs
-    shell: true,
   });
 
   child.on("error", (err) => {

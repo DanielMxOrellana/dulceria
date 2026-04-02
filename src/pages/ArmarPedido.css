@@ -100,6 +100,14 @@
   font-size: 0.95rem;
 }
 
+.funda-auto-note {
+  margin-top: -1.1rem;
+  margin-bottom: 1.2rem;
+  color: #0f766e;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
 .pedido-feedback {
   border-radius: 12px;
   padding: 0.8rem 1rem;
@@ -268,11 +276,56 @@
   border-radius: 14px;
   padding: 1rem;
   transition: border-color 0.2s;
+  position: relative;
+  overflow: visible;
+  z-index: 1;
 }
 
 .dulce-order-card.en-pedido {
   border-color: var(--accent);
   background: var(--accent-light);
+}
+
+.doc-image-preview {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  width: 240px;
+  height: 200px;
+  transform: translateX(-50%) scale(0.92);
+  transform-origin: bottom center;
+  border-radius: 14px;
+  border: 2px solid var(--border);
+  background: #ffffff;
+  box-shadow: 0 16px 35px rgba(15, 23, 42, 0.24);
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  z-index: 20;
+}
+
+.doc-image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center center;
+  display: block;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .dulce-order-card:hover {
+    z-index: 30;
+  }
+
+  .dulce-order-card:hover .doc-image-preview {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+
+  .dulce-order-card:hover .doc-thumb {
+    transform: scale(1.07);
+  }
 }
 
 .doc-top {
@@ -283,8 +336,8 @@
 }
 
 .doc-thumb {
-  width: 48px;
-  height: 48px;
+  width: 64px;
+  height: 64px;
   border-radius: 10px;
   object-fit: cover;
   object-position: center center;
@@ -293,8 +346,8 @@
 }
 
 .doc-thumb-placeholder {
-  width: 48px;
-  height: 48px;
+  width: 64px;
+  height: 64px;
   border-radius: 10px;
   display: inline-flex;
   align-items: center;
@@ -310,8 +363,8 @@
 @media (max-width: 500px) {
   .doc-thumb,
   .doc-thumb-placeholder {
-    width: 42px;
-    height: 42px;
+    width: 56px;
+    height: 56px;
   }
 }
 .doc-info { flex: 1; }
@@ -679,6 +732,9 @@
   .paso2-header { flex-direction: column; }
   .cliente-grid { grid-template-columns: 1fr; }
   .form-row { grid-template-columns: 1fr; }
+  .doc-image-preview {
+    display: none;
+  }
   .cliente-section {
     margin-left: -1.5rem;
     margin-right: -1.5rem;
