@@ -1,7 +1,7 @@
 export const dulces = [
-  { id: 1, nombre: "Galletas Con Mermelada", precio: 0.25, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "", descripcion: "Dulce tradicional" },
-  { id: 2, nombre: "Arepas", precio: 0.25, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "", descripcion: "Dulce tradicional" },
-  { id: 3, nombre: "Aplanchados", precio: 0.25, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "", descripcion: "Dulce tradicional" },
+  { id: 1, nombre: "Galletas Con Mermelada", precio: 0.25, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "/img/dulces/galletas-con-mermelada.png", descripcion: "Dulce tradicional" },
+  { id: 2, nombre: "Arepas", precio: 0.25, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "/img/dulces/arepas.png", descripcion: "Dulce tradicional" },
+  { id: 3, nombre: "Aplanchados", precio: 0.25, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "/img/dulces/aplanchados.png", descripcion: "Dulce tradicional" },
   { id: 4, nombre: "Roscas De Viento", precio: 0.30, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "/img/dulces/roscas-de-viento.png", descripcion: "Dulce tradicional" },
   { id: 5, nombre: "Suspiros", precio: 0.15, disponible: true, cantidad: 100, categoria: "tradicionales", imagen: "/img/dulces/suspirosss.png", descripcion: "Dulce tradicional" },
   { id: 6, nombre: "Chocolate Blanco", precio: 0.30, disponible: true, cantidad: 100, categoria: "chocolates", imagen: "/img/dulces/chocolate-blanco.png", descripcion: "Dulce tradicional" },
