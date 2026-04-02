@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Dulcería El Suspiro</title>
+  <desc id="desc">Icono circular de la dulcería con borde azul y texto EL SUSPIRO.</desc>
+  <defs>
+    <radialGradient id="paper" cx="50%" cy="45%" r="70%">
+      <stop offset="0%" stop-color="#fffdf6"/>
+      <stop offset="100%" stop-color="#f4efe3"/>
+    </radialGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#5d95c3"/>
+      <stop offset="100%" stop-color="#4f7fb4"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f2d08b"/>
+      <stop offset="100%" stop-color="#d8b36b"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="92" fill="url(#paper)"/>
+  <circle cx="256" cy="256" r="178" fill="none" stroke="url(#blue)" stroke-width="8"/>
+  <circle cx="256" cy="256" r="164" fill="none" stroke="#8baed1" stroke-width="2" opacity="0.9"/>
+  <circle cx="256" cy="256" r="188" fill="none" stroke="#4f7fb4" stroke-width="5" stroke-dasharray="7 20" opacity="0.95"/>
+  <circle cx="256" cy="256" r="202" fill="none" stroke="#4f7fb4" stroke-width="8" stroke-dasharray="16 12" opacity="0.4"/>
+
+  <g fill="#4f7fb4" opacity="0.95">
+    <circle cx="256" cy="92" r="7"/>
+    <circle cx="256" cy="420" r="7"/>
+    <circle cx="92" cy="256" r="7"/>
+    <circle cx="420" cy="256" r="7"/>
+  </g>
+
+  <g fill="none" stroke="url(#gold)" stroke-width="3" opacity="0.95">
+    <path d="M99 256c0-24 10-45 26-61"/>
+    <path d="M413 256c0-24-10-45-26-61"/>
+    <path d="M99 256c0 24 10 45 26 61"/>
+    <path d="M413 256c0 24-10 45-26 61"/>
+  </g>
+
+  <text x="256" y="190" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="52" font-style="italic" fill="#d3b276">Dulcería</text>
+  <text x="256" y="332" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="60" font-weight="700" fill="#9eb9d8" letter-spacing="1">EL SUSPIRO</text>
+
+  <g transform="translate(256 248)">
+    <circle r="28" fill="none" stroke="#5d95c3" stroke-width="4"/>
+    <path d="M0-23c9 6 15 14 15 22 0 10-7 18-15 18s-15-8-15-18c0-8 6-16 15-22Z" fill="none" stroke="#5d95c3" stroke-width="3"/>
+    <path d="M-8 12c5 4 11 5 16 0" stroke="#5d95c3" stroke-width="4" fill="none" stroke-linecap="round"/>
+  </g>
+</svg>

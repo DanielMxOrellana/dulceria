@@ -15,11 +15,16 @@ function isSupabaseUnavailableError(error) {
 async function registerViaBackend({ email, password, fullName, phone }) {
   if (!API_BASE_URL) return null;
 
-  const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password, fullName, phone }),
-  });
+  let response;
+  try {
+    response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password, fullName, phone }),
+    });
+  } catch (_err) {
+    throw new Error("backend auth no disponible");
+  }
 
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
@@ -107,7 +112,7 @@ export const authApi = {
       if (lower.includes("ya esta registrado")) {
         throw new Error("Este correo ya esta registrado. Inicia sesion.");
       }
-      if (!lower.includes("backend auth no configurado")) {
+      if (!lower.includes("backend auth no configurado") && !lower.includes("backend auth no disponible") && !lower.includes("failed to fetch") && !lower.includes("networkerror")) {
         throw backendError;
       }
     }
