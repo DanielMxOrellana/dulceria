@@ -56,14 +56,14 @@ export const tiposDesechables = [
 ];
 
 export const tiposCanastos = [
-  { id: "canasto_s", nombre: "Canasto Pequeño", precio: 3.00, descripcion: "Canasto artesanal 20×15cm", emoji: "🧺", capacidadMax: 20 },
-  { id: "canasto_5", nombre: "Canasto Pequeño Plus", precio: 5.00, descripcion: "Canasto artesanal 24×18cm", emoji: "🧺", capacidadMax: 28 },
-  { id: "canasto_7", nombre: "Canasto Mediano", precio: 7.00, descripcion: "Canasto artesanal 28×22cm", emoji: "🧺", capacidadMax: 35 },
-  { id: "canasto_10", nombre: "Canasto Mediano Plus", precio: 10.00, descripcion: "Canasto artesanal 32×25cm", emoji: "🧺", capacidadMax: 45 },
-  { id: "canasto_15", nombre: "Canasto Grande", precio: 15.00, descripcion: "Canasto artesanal 40×35cm", emoji: "🧺", capacidadMax: 60 },
-  { id: "canasto_20", nombre: "Canasto XL Premium", precio: 20.00, descripcion: "Canasto artesanal 50×45cm con moño", emoji: "🧺", capacidadMax: 100 },
-  { id: "canasto_25", nombre: "Canasto Deluxe", precio: 25.00, descripcion: "Canasto artesanal 55×45cm con decoración", emoji: "🧺", capacidadMax: 125 },
-  { id: "canasto_30", nombre: "Canasto Especial", precio: 30.00, descripcion: "Canasto artesanal 60×50cm premium", emoji: "🧺", capacidadMax: 150 },
-  { id: "canasto_35", nombre: "Canasto Gran Premium", precio: 35.00, descripcion: "Canasto artesanal 65×55cm edición especial", emoji: "🧺", capacidadMax: 180 },
-  { id: "canasto_40", nombre: "Canasto Supremo", precio: 40.00, descripcion: "Canasto artesanal 70×60cm tamaño familiar", emoji: "🧺", capacidadMax: 220 },
+  { id: "canasto_s", nombre: "Canasto Pequeño", precio: 3.00, descripcion: "Canasto artesanal 20×15cm", emoji: "🎁", capacidadMax: 20 },
+  { id: "canasto_5", nombre: "Canasto Pequeño Plus", precio: 5.00, descripcion: "Canasto artesanal 24×18cm", emoji: "🎁", capacidadMax: 28 },
+  { id: "canasto_7", nombre: "Canasto Mediano", precio: 7.00, descripcion: "Canasto artesanal 28×22cm", emoji: "🎁", capacidadMax: 35 },
+  { id: "canasto_10", nombre: "Canasto Mediano Plus", precio: 10.00, descripcion: "Canasto artesanal 32×25cm", emoji: "🎁", capacidadMax: 45 },
+  { id: "canasto_15", nombre: "Canasto Grande", precio: 15.00, descripcion: "Canasto artesanal 40×35cm", emoji: "🎁", capacidadMax: 60 },
+  { id: "canasto_20", nombre: "Canasto XL Premium", precio: 20.00, descripcion: "Canasto artesanal 50×45cm con moño", emoji: "🎁", capacidadMax: 100 },
+  { id: "canasto_25", nombre: "Canasto Deluxe", precio: 25.00, descripcion: "Canasto artesanal 55×45cm con decoración", emoji: "🎁", capacidadMax: 125 },
+  { id: "canasto_30", nombre: "Canasto Especial", precio: 30.00, descripcion: "Canasto artesanal 60×50cm premium", emoji: "🎁", capacidadMax: 150 },
+  { id: "canasto_35", nombre: "Canasto Gran Premium", precio: 35.00, descripcion: "Canasto artesanal 65×55cm edición especial", emoji: "🎁", capacidadMax: 180 },
+  { id: "canasto_40", nombre: "Canasto Supremo", precio: 40.00, descripcion: "Canasto artesanal 70×60cm tamaño familiar", emoji: "🎁", capacidadMax: 220 },
 ];

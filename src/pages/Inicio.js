@@ -42,7 +42,7 @@ export default function Inicio() {
           <div className="hi-blob">
             {!heroLogoError ? (
               <img
-                src="/img/logo-el-suspiro.jpg?v=2"
+                src="/img/logo-el-suspiro-nuevo.svg"
                 alt="Logo El Suspiro"
                 className="hi-logo"
                 onError={() => setHeroLogoError(true)}

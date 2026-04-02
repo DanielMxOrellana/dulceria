@@ -11,6 +11,7 @@ const { loadDulcesSeed } = require("./utils/loadDulcesSeed");
 const ordersRouter = require("./routes/orders");
 const inventoryRouter = require("./routes/inventory");
 const customersRouter = require("./routes/customers");
+const authRouter = require("./routes/auth");
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -30,6 +31,7 @@ app.get("/api/health", (_req, res) => {
 app.use("/api/orders", ordersRouter);
 app.use("/api/inventory", inventoryRouter);
 app.use("/api/customers", customersRouter);
+app.use("/api/auth", authRouter);
 
 app.use((err, _req, res, _next) => {
   console.error("Unhandled error:", err);
@@ -64,21 +66,21 @@ async function createInventoryTableIfNotExists() {
         console.log("Tabla inventory creada exitosamente.");
       }
 
-      const countRows = await query(conn, `SELECT COUNT(*) AS TOTAL FROM ${schema}.inventory`);
-      const total = Number((countRows[0] && (countRows[0].TOTAL ?? countRows[0].total)) || 0);
-      if (total > 0) {
-        return;
-      }
-
       const dulces = loadDulcesSeed();
-      const insertSQL = `
+      const upsertSQL = `
         INSERT INTO ${schema}.inventory 
         (candy_id, candy_name, quantity, price, available) 
         VALUES (?, ?, ?, ?, ?)
+        ON CONFLICT (candy_id) DO UPDATE
+        SET
+          candy_name = EXCLUDED.candy_name,
+          price = EXCLUDED.price,
+          available = EXCLUDED.available,
+          updated_at = CURRENT_TIMESTAMP
       `;
 
       for (const dulce of dulces) {
-        await query(conn, insertSQL, [
+        await query(conn, upsertSQL, [
           dulce.id,
           dulce.nombre,
           dulce.cantidad,
@@ -87,7 +89,7 @@ async function createInventoryTableIfNotExists() {
         ]);
       }
 
-      console.log(`Inventario inicial cargado con ${dulces.length} dulces.`);
+      console.log(`Inventario sincronizado con ${dulces.length} dulces (nombre/precio/estado).`);
     });
   } catch (err) {
     console.warn(`Aviso INVENTORY: ${err.message}`);
@@ -122,9 +124,109 @@ async function checkDbAndSchema() {
   });
 }
 
+async function ensureOrdersColumns() {
+  const schema = process.env.PGSCHEMA || "public";
+
+  await withConnection(async (conn) => {
+    await query(
+      conn,
+      `ALTER TABLE ${schema}.orders ADD COLUMN IF NOT EXISTS delivery_time VARCHAR(10)`
+    );
+    await query(
+      conn,
+      `ALTER TABLE ${schema}.orders ADD COLUMN IF NOT EXISTS user_id UUID`
+    );
+  });
+}
+
+async function ensureUserProfilesTable() {
+  const schema = process.env.PGSCHEMA || "public";
+
+  await withConnection(async (conn) => {
+    await query(
+      conn,
+      `
+        CREATE TABLE IF NOT EXISTS ${schema}.user_profiles (
+          id UUID PRIMARY KEY,
+          email VARCHAR(255) NOT NULL,
+          full_name VARCHAR(120),
+          phone VARCHAR(30),
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `
+    );
+
+    await query(conn, `ALTER TABLE ${schema}.user_profiles ENABLE ROW LEVEL SECURITY`);
+
+    await query(
+      conn,
+      `
+        DO $$
+        BEGIN
+          IF NOT EXISTS (
+            SELECT 1 FROM pg_policies
+            WHERE schemaname = '${schema}'
+              AND tablename = 'user_profiles'
+              AND policyname = 'Users can view own profile'
+          ) THEN
+            CREATE POLICY "Users can view own profile"
+            ON ${schema}.user_profiles
+            FOR SELECT
+            USING (auth.uid() = id);
+          END IF;
+        END $$;
+      `
+    );
+
+    await query(
+      conn,
+      `
+        DO $$
+        BEGIN
+          IF NOT EXISTS (
+            SELECT 1 FROM pg_policies
+            WHERE schemaname = '${schema}'
+              AND tablename = 'user_profiles'
+              AND policyname = 'Users can insert own profile'
+          ) THEN
+            CREATE POLICY "Users can insert own profile"
+            ON ${schema}.user_profiles
+            FOR INSERT
+            WITH CHECK (auth.uid() = id);
+          END IF;
+        END $$;
+      `
+    );
+
+    await query(
+      conn,
+      `
+        DO $$
+        BEGIN
+          IF NOT EXISTS (
+            SELECT 1 FROM pg_policies
+            WHERE schemaname = '${schema}'
+              AND tablename = 'user_profiles'
+              AND policyname = 'Users can update own profile'
+          ) THEN
+            CREATE POLICY "Users can update own profile"
+            ON ${schema}.user_profiles
+            FOR UPDATE
+            USING (auth.uid() = id)
+            WITH CHECK (auth.uid() = id);
+          END IF;
+        END $$;
+      `
+    );
+  });
+}
+
 async function startServer() {
   try {
     await checkDbAndSchema();
+    await ensureOrdersColumns();
+    await ensureUserProfilesTable();
     console.log("Conexion PostgreSQL y esquema de pedidos listos.");
     
     // Crear tabla de inventario si no existe

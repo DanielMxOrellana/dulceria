@@ -1,10 +1,32 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { useCarrito } from '../context/CarritoContext';
 import { getOrders } from '../services/ordersApi';
 import './MisPedidos.css';
 
+const STATUS_META = {
+  pending: { label: '🕒 Pendiente', className: 'status-pending' },
+  confirmed: { label: '✅ Aceptado', className: 'status-confirmed' },
+  rejected: { label: '❌ Rechazado', className: 'status-rejected' },
+  delivered: { label: '📦 Entregado', className: 'status-delivered' },
+  cancelled: { label: '🚫 Cancelado', className: 'status-cancelled' },
+};
+
+function normalizeStatus(status) {
+  const raw = String(status || '').trim().toLowerCase();
+  const map = {
+    pendiente: 'pending',
+    aceptado: 'confirmed',
+    rechazado: 'rejected',
+    entregado: 'delivered',
+    cancelado: 'cancelled',
+  };
+  return map[raw] || raw || 'pending';
+}
+
 export default function MisPedidos() {
+  const { user } = useAuth();
   const { pedidosFinalizados } = useCarrito();
   const [dbOrders, setDbOrders] = useState([]);
   const [loadingDbOrders, setLoadingDbOrders] = useState(false);
@@ -17,24 +39,35 @@ export default function MisPedidos() {
       sessionStorage.removeItem('pedidoFlash');
     }
 
-    const loadDbOrders = async () => {
+    const loadDbOrders = async (silent = false) => {
       try {
-        setLoadingDbOrders(true);
-        const all = await getOrders();
-        const lastCedula = localStorage.getItem('lastCustomerCedula') || '';
-        const filtered = lastCedula
-          ? all.filter((o) => String(o.customerCedula || '') === String(lastCedula))
-          : all;
+        if (!silent) {
+          setLoadingDbOrders(true);
+        }
+        const all = await getOrders({ userId: user?.id || '' });
+        const filtered = all.length > 0
+          ? all
+          : pedidosFinalizados.filter((o) => String(o.userId || '') === String(user?.id || ''));
         setDbOrders(filtered);
       } catch (_err) {
-        setDbOrders([]);
+        if (!silent) {
+          setDbOrders([]);
+        }
       } finally {
-        setLoadingDbOrders(false);
+        if (!silent) {
+          setLoadingDbOrders(false);
+        }
       }
     };
 
     loadDbOrders();
-  }, []);
+
+    const syncTimer = setInterval(() => {
+      loadDbOrders(true);
+    }, 15000);
+
+    return () => clearInterval(syncTimer);
+  }, [user?.id, pedidosFinalizados]);
 
   const pedidosMostrar = dbOrders.length > 0 ? dbOrders : pedidosFinalizados;
 
@@ -43,7 +76,7 @@ export default function MisPedidos() {
       <div className="mispedidos-page">
         <div className="mispedidos-header">
           <h1>📋 Mis Pedidos</h1>
-          <p>Aquí aparecerán tus pedidos confirmados</p>
+          <p>Aquí aparecerán tus pedidos</p>
         </div>
         {flash && <div className="pedido-flash">{flash}</div>}
         <div className="empty-pedidos">
@@ -71,10 +104,14 @@ export default function MisPedidos() {
           const displayFecha = p.fecha || (p.createdAt ? new Date(p.createdAt).toLocaleString('es-EC') : 'Sin fecha');
           const displayTotal = Number(p.total || 0);
           const displayDelivery = p.deliveryType || 'domicilio';
+          const displayDeliveryDate = p.deliveryDate || '';
+          const displayDeliveryTime = p.deliveryTime || '';
           const displayContainerName = p.containerName || p.contenedor?.data?.nombre || 'Contenedor';
           const displayContainerEmoji = p.contenedor?.data?.emoji || '🧺';
           const displayContainerPrice = Number(p.containerPrice || p.contenedor?.data?.precio || 0);
           const displayItems = Array.isArray(p.items) ? p.items : [];
+          const normalizedStatus = normalizeStatus(p.status);
+          const statusMeta = STATUS_META[normalizedStatus] || STATUS_META.pending;
 
           return (
           <div key={p.id} className="pedido-card">
@@ -94,6 +131,12 @@ export default function MisPedidos() {
 
             <div className="pedido-entrega">
               {displayDelivery === 'retiro' ? '🏪 Para retiro' : '🚚 A domicilio'}
+              {(displayDeliveryDate || displayDeliveryTime) && (
+                <small>
+                  {displayDeliveryDate || 'Sin fecha'}
+                  {displayDeliveryTime ? ` · ${displayDeliveryTime}` : ''}
+                </small>
+              )}
             </div>
 
             <div className="pedido-items">
@@ -121,7 +164,7 @@ export default function MisPedidos() {
               </div>
             )}
 
-            <div className="pedido-badge">✅ Confirmado</div>
+            <div className={`pedido-badge ${statusMeta.className}`}>{statusMeta.label}</div>
           </div>
           );
         })}

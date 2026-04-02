@@ -79,7 +79,9 @@ router.post("/", async (req, res) => {
   const customerCity = String(body.customerCity || "").trim();
   const customerReference = String(body.customerReference || "").trim();
   const deliveryDate = String(body.deliveryDate || "").trim();
+  const deliveryTime = String(body.deliveryTime || "").trim();
   const deliveryType = String(body.deliveryType || "domicilio").trim();
+  const userId = String(body.userId || "").trim();
   const containerType = String(body.containerType || "").trim();
   const containerName = String(body.containerName || "").trim();
   const containerPrice = toNum(body.containerPrice, 0);
@@ -141,16 +143,18 @@ router.post("/", async (req, res) => {
       const candyIds = Array.from(itemTotalsByCandy.keys());
       const placeholders = candyIds.map(() => "?").join(",");
 
-      const inventoryRows = await query(
-        conn,
-        `
-          SELECT candy_id, quantity
-          FROM ${schema}.inventory
-          WHERE candy_id IN (${placeholders})
-          FOR UPDATE
-        `,
-        candyIds
-      );
+      const inventoryRows = candyIds.length
+        ? await query(
+            conn,
+            `
+              SELECT candy_id, quantity
+              FROM ${schema}.inventory
+              WHERE candy_id IN (${placeholders})
+              FOR UPDATE
+            `,
+            candyIds
+          )
+        : [];
 
       const inventoryById = new Map(
         inventoryRows.map((row) => [Number(row.CANDY_ID ?? row.candy_id), Number(row.QUANTITY ?? row.quantity)])
@@ -228,6 +232,7 @@ router.post("/", async (req, res) => {
           INSERT INTO orders (
             order_code,
             customer_id,
+            user_id,
             customer_cedula,
             customer_name,
             customer_email,
@@ -236,6 +241,7 @@ router.post("/", async (req, res) => {
             customer_city,
             customer_reference,
             delivery_date,
+            delivery_time,
             delivery_type,
             container_type,
             container_name,
@@ -243,12 +249,13 @@ router.post("/", async (req, res) => {
             notes,
             total,
             status
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
           RETURNING id
         `,
         [
           null,
           customerId,
+          userId || null,
           customerCedula,
           customerName,
           customerEmail,
@@ -257,6 +264,7 @@ router.post("/", async (req, res) => {
           customerCity,
           customerReference,
           deliveryDate,
+          deliveryTime,
           deliveryType,
           containerType,
           containerName,
@@ -317,11 +325,7 @@ router.post("/", async (req, res) => {
         ]);
       }
 
-      await query(
-        conn,
-        "INSERT INTO order_status_history (order_id, status) VALUES (?, ?)",
-        [orderId, status]
-      );
+      await query(conn, "INSERT INTO order_status_history (order_id, status) VALUES (?, ?)", [orderId, status]);
 
       return {
         id: orderId,
@@ -339,7 +343,9 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.get("/", async (_req, res) => {
+router.get("/", async (req, res) => {
+  const userId = String(req.query.userId || "").trim();
+
   try {
     const data = await withConnection(async (conn) => {
       const orders = await query(
@@ -349,6 +355,7 @@ router.get("/", async (_req, res) => {
             id,
             order_code,
             customer_id,
+            user_id,
             customer_cedula,
             customer_name,
             customer_email,
@@ -357,6 +364,7 @@ router.get("/", async (_req, res) => {
             customer_city,
             customer_reference,
             delivery_date,
+            delivery_time,
             delivery_type,
             container_type,
             container_name,
@@ -366,9 +374,11 @@ router.get("/", async (_req, res) => {
             status,
             created_at
           FROM orders
+          ${userId ? "WHERE user_id = ?" : ""}
           ORDER BY created_at DESC
           FETCH FIRST 200 ROWS ONLY
-        `
+        `,
+        userId ? [userId] : []
       );
 
       if (orders.length === 0) {
@@ -419,6 +429,7 @@ router.get("/", async (_req, res) => {
           id: orderId,
           orderCode: order.ORDER_CODE ?? order.order_code,
           customerId: Number(order.CUSTOMER_ID ?? order.customer_id ?? 0) || null,
+          userId: order.USER_ID ?? order.user_id ?? null,
           customerCedula: order.CUSTOMER_CEDULA ?? order.customer_cedula,
           customerName: order.CUSTOMER_NAME ?? order.customer_name,
           customerEmail: order.CUSTOMER_EMAIL ?? order.customer_email,
@@ -427,6 +438,7 @@ router.get("/", async (_req, res) => {
           customerCity: order.CUSTOMER_CITY ?? order.customer_city,
           customerReference: order.CUSTOMER_REFERENCE ?? order.customer_reference,
           deliveryDate: order.DELIVERY_DATE ?? order.delivery_date,
+          deliveryTime: order.DELIVERY_TIME ?? order.delivery_time,
           deliveryType: order.DELIVERY_TYPE ?? order.delivery_type,
           containerType: order.CONTAINER_TYPE ?? order.container_type,
           containerName: order.CONTAINER_NAME ?? order.container_name,
@@ -545,22 +557,14 @@ router.put("/:id/status", validateAdmin, async (req, res) => {
 
   try {
     const result = await withTransaction(async (conn) => {
-      const existingRows = await query(
-        conn,
-        "SELECT id, status FROM orders WHERE id = ?",
-        [orderId]
-      );
+      const existingRows = await query(conn, "SELECT id, status FROM orders WHERE id = ?", [orderId]);
 
       if (existingRows.length === 0) {
         throw new Error("Pedido no encontrado");
       }
 
       await query(conn, "UPDATE orders SET status = ? WHERE id = ?", [nextStatus, orderId]);
-      await query(
-        conn,
-        "INSERT INTO order_status_history (order_id, status) VALUES (?, ?)",
-        [orderId, nextStatus]
-      );
+      await query(conn, "INSERT INTO order_status_history (order_id, status) VALUES (?, ?)", [orderId, nextStatus]);
 
       return {
         id: orderId,

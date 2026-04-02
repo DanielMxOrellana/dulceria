@@ -8,6 +8,7 @@ function normalizeOrderRow(row) {
   return {
     id: row.order_id || row.id,
     customerId: row.customer_id || null,
+    userId: row.user_id || null,
     orderCode: row.order_code || null,
     customerCedula: row.customer_cedula || "",
     customerName: row.customer_name || "",
@@ -17,6 +18,7 @@ function normalizeOrderRow(row) {
     customerCity: row.customer_city || "",
     customerReference: row.customer_reference || "",
     deliveryDate: row.delivery_date || "",
+    deliveryTime: row.delivery_time || "",
     deliveryType: row.delivery_type || "domicilio",
     containerType: row.container_type || "",
     containerName: row.container_name || "",
@@ -142,6 +144,7 @@ export async function createOrder(orderPayload) {
 
     const orderInput = {
       customer_id: customerId,
+      user_id: orderPayload.userId || null,
       customer_cedula: orderPayload.customerCedula || null,
       customer_name: orderPayload.customerName,
       customer_email: orderPayload.customerEmail || null,
@@ -150,6 +153,7 @@ export async function createOrder(orderPayload) {
       customer_city: orderPayload.customerCity || null,
       customer_reference: orderPayload.customerReference || null,
       delivery_date: orderPayload.deliveryDate || null,
+      delivery_time: orderPayload.deliveryTime || null,
       delivery_type: orderPayload.deliveryType || "domicilio",
       container_type: orderPayload.containerType,
       container_name: orderPayload.containerName,
@@ -262,13 +266,18 @@ export async function createOrder(orderPayload) {
   return data.order;
 }
 
-export async function getOrders() {
+export async function getOrders(options = {}) {
+  const userId = String(options.userId || "").trim();
+
   if (USE_SUPABASE) {
     const supabase = getSupabase();
-    const { data, error } = await supabase
-      .from("vw_admin_orders_json")
-      .select("*")
-      .order("created_at", { ascending: false });
+    let query = supabase.from("vw_admin_orders_json").select("*").order("created_at", { ascending: false });
+
+    if (userId) {
+      query = query.eq("user_id", userId);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       throw new Error(error.message || "No se pudieron obtener pedidos");
@@ -277,7 +286,12 @@ export async function getOrders() {
     return (data || []).map(normalizeOrderRow);
   }
 
-  const response = await fetch(`${API_BASE}/api/orders`);
+  const url = new URL(`${API_BASE}/api/orders`);
+  if (userId) {
+    url.searchParams.set("userId", userId);
+  }
+
+  const response = await fetch(url.toString());
   const data = await parseApiResponse(response);
 
   if (!response.ok || !data.ok) {

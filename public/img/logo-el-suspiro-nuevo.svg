@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1366 536" role="img" aria-labelledby="title desc">
+  <title id="title">Dulcería El Suspiro</title>
+  <desc id="desc">Logo rectangular azul con borde dorado y texto blanco.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2b78b7"/>
+      <stop offset="100%" stop-color="#1e67a6"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f9d67b"/>
+      <stop offset="100%" stop-color="#d6a74d"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="18" y="18" width="1330" height="500" rx="28" fill="#000"/>
+  <rect x="34" y="34" width="1298" height="468" rx="26" fill="url(#gold)"/>
+  <rect x="54" y="54" width="1258" height="428" rx="24" fill="url(#bg)" stroke="#ffcf66" stroke-width="4"/>
+  <rect x="68" y="68" width="1228" height="400" rx="20" fill="none" stroke="#ffd77a" stroke-width="3"/>
+
+  <circle cx="98" cy="100" r="12" fill="#d8c57e"/>
+  <circle cx="1268" cy="100" r="12" fill="#d8c57e"/>
+  <circle cx="98" cy="460" r="12" fill="#d8c57e"/>
+  <circle cx="1268" cy="460" r="12" fill="#d8c57e"/>
+
+  <circle cx="675" cy="80" r="7" fill="#e9d08a"/>
+  <circle cx="675" cy="456" r="7" fill="#e9d08a"/>
+  <circle cx="375" cy="80" r="7" fill="#c8cc9a"/>
+  <circle cx="981" cy="80" r="7" fill="#c8cc9a"/>
+  <circle cx="375" cy="456" r="7" fill="#c8cc9a"/>
+  <circle cx="981" cy="456" r="7" fill="#c8cc9a"/>
+
+  <rect x="120" y="275" width="110" height="5" rx="2" fill="#9db18d" opacity="0.85"/>
+  <path d="M102 268c8-12 16-16 27-16s19 4 27 16c-8 8-16 12-27 12s-19-4-27-12z" fill="#88a08a" opacity="0.9"/>
+  <rect x="1136" y="275" width="110" height="5" rx="2" fill="#9db18d" opacity="0.85"/>
+  <path d="M1228 268c8-12 16-16 27-16s19 4 27 16c-8 8-16 12-27 12s-19-4-27-12z" fill="#88a08a" opacity="0.9"/>
+
+  <text x="683" y="225" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="170" font-weight="300" fill="#fff7ee">Dulcería</text>
+  <line x1="120" y1="276" x2="1246" y2="276" stroke="#e5d59a" stroke-width="2" opacity="0.7"/>
+  <text x="683" y="408" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="170" font-weight="800" letter-spacing="7" fill="#ffffff">EL SUSPIRO</text>
+</svg>

@@ -201,7 +201,7 @@ export default function AdminPedidos() {
                   <p><strong>Ciudad:</strong> {order.customerCity || 'Sin ciudad'}</p>
                   <p><strong>Dirección:</strong> {order.customerAddress || 'Sin dirección'}</p>
                   <p><strong>Referencia:</strong> {order.customerReference || 'Sin referencia'}</p>
-                  <p><strong>Entrega:</strong> {order.deliveryDate || 'Sin fecha'}</p>
+                  <p><strong>Entrega:</strong> {(order.deliveryDate || 'Sin fecha') + (order.deliveryTime ? ` · ${order.deliveryTime}` : '')}</p>
                 </div>
 
                 <div className="order-items-box">

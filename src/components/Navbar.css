@@ -24,10 +24,10 @@
 }
 
 .brand-logo {
-  width: 38px;
+  width: 110px;
   height: 38px;
-  border-radius: 50%;
-  object-fit: cover;
+  border-radius: 10px;
+  object-fit: contain;
   border: 2px solid rgba(111, 189, 216, 0.35);
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
 }
@@ -70,8 +70,43 @@
   letter-spacing: 0.02em;
 }
 
+.auth-nav-btn {
+  display: block;
+  padding: 0.5rem 1rem;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 0.9rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.02em;
+}
+
+.account-box {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.account-label {
+  display: inline-block;
+  max-width: 220px;
+  font-size: 0.82rem;
+  color: var(--accent);
+  background: var(--accent-light);
+  border: 1px solid rgba(111, 189, 216, 0.35);
+  border-radius: 16px;
+  padding: 0.36rem 0.62rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .navbar-links a:hover,
-.navbar-links a.active {
+.navbar-links a.active,
+.auth-nav-btn:hover {
   color: var(--accent);
   background: var(--accent-light);
 }
@@ -138,7 +173,7 @@
 
 @media (max-width: 768px) {
   .menu-toggle { display: flex; }
-  .brand-logo { width: 34px; height: 34px; }
+  .brand-logo { width: 86px; height: 30px; }
   .navbar-links {
     display: none;
     position: absolute;
@@ -152,6 +187,13 @@
   }
   .navbar-links.open { display: flex; }
   .navbar-links a { font-size: 1rem; }
+  .account-box {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .account-label {
+    max-width: calc(100vw - 190px);
+  }
   
   .admin-link {
     margin-left: 0;

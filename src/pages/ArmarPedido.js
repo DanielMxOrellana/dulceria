@@ -11,6 +11,19 @@ const PASO_DULCES = 2;
 const PASO_RESUMEN = 3;
 const ORDERS_PROVIDER = (process.env.REACT_APP_ORDERS_PROVIDER || 'api').toLowerCase();
 
+const getOpcionPorCantidad = (opciones, cantidadTotal) => {
+  const cantidad = Math.max(1, Number(cantidadTotal) || 1);
+  return opciones.find((opcion) => cantidad <= (opcion.capacidadMax || Infinity)) || opciones[opciones.length - 1];
+};
+
+const getFundaRecomendada = (cantidadTotal) => {
+  return getOpcionPorCantidad(tiposFundas, cantidadTotal);
+};
+
+const getDesechableRecomendado = (cantidadTotal) => {
+  return getOpcionPorCantidad(tiposDesechables, cantidadTotal);
+};
+
 export default function ArmarPedido() {
   const navigate = useNavigate();
   const { pedido, setContenedor, agregarDulce, actualizarCantidad, quitarDulce, setNota, total, totalDulces, subtotalDulces, costoContenedor, finalizarPedido } = useCarrito();
@@ -26,6 +39,7 @@ export default function ArmarPedido() {
   const [customerCity, setCustomerCity] = useState('');
   const [customerReference, setCustomerReference] = useState('');
   const [deliveryDate, setDeliveryDate] = useState('');
+  const [deliveryTime, setDeliveryTime] = useState('');
   const [deliveryType, setDeliveryType] = useState('domicilio');
   const [inventario, setInventario] = useState({});
   const [consultandoCedula, setConsultandoCedula] = useState(false);
@@ -57,21 +71,8 @@ export default function ArmarPedido() {
   const tipos = [
     { key: 'funda', label: 'Funda', emoji: '🛍️', desc: 'Automática según cantidad' },
     { key: 'desechable', label: 'Caja Desechable', emoji: '📦', desc: 'Automática desde $3.00 hasta $15.00' },
-    { key: 'canasto', label: 'Canasto', emoji: '🧺', desc: 'Desde $3.00 (aparte)' },
+    { key: 'canasto', label: 'Canasto', emoji: '🎁', desc: 'Desde $3.00 (aparte)' },
   ];
-
-  const getOpcionPorCantidad = (opciones, cantidadTotal) => {
-    const cantidad = Math.max(1, Number(cantidadTotal) || 1);
-    return opciones.find((opcion) => cantidad <= (opcion.capacidadMax || Infinity)) || opciones[opciones.length - 1];
-  };
-
-  const getFundaRecomendada = (cantidadTotal) => {
-    return getOpcionPorCantidad(tiposFundas, cantidadTotal);
-  };
-
-  const getDesechableRecomendado = (cantidadTotal) => {
-    return getOpcionPorCantidad(tiposDesechables, cantidadTotal);
-  };
 
   useEffect(() => {
     const tipoContenedor = pedido.contenedor?.tipo;
@@ -195,6 +196,12 @@ export default function ArmarPedido() {
       newErrors.customerCity = 'La ciudad es requerida';
     }
 
+    if (!deliveryTime.trim()) {
+      newErrors.deliveryTime = deliveryType === 'retiro'
+        ? 'La hora de retiro es requerida'
+        : 'La hora de entrega es requerida';
+    }
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       setFeedback({
@@ -217,6 +224,7 @@ export default function ArmarPedido() {
         customerCity,
         customerReference,
         deliveryDate,
+        deliveryTime,
         deliveryType,
       });
 
@@ -617,6 +625,20 @@ export default function ArmarPedido() {
                       value={deliveryDate}
                       onChange={(e) => setDeliveryDate(e.target.value)}
                     />
+                  </div>
+
+                  <div className="form-group" style={{ flex: 1 }}>
+                    <label>{deliveryType === 'retiro' ? 'Hora de retiro *' : 'Hora de entrega *'}</label>
+                    <input
+                      type="time"
+                      className={`cliente-input ${errors.deliveryTime ? 'input-error' : ''}`}
+                      value={deliveryTime}
+                      onChange={(e) => {
+                        setDeliveryTime(e.target.value);
+                        if (errors.deliveryTime) setErrors(prev => ({ ...prev, deliveryTime: '' }));
+                      }}
+                    />
+                    {errors.deliveryTime && <span className="error-text">{errors.deliveryTime}</span>}
                   </div>
                 </div>
               </div>

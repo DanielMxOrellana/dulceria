@@ -1,9 +1,11 @@
 import React, { createContext, useContext, useState } from 'react';
+import { useAuth } from './AuthContext';
 import { createOrder } from '../services/ordersApi';
 
 const CarritoContext = createContext();
 
 export const CarritoProvider = ({ children }) => {
+  const { user } = useAuth();
   const [pedido, setPedido] = useState({
     contenedor: null, // { tipo, data }
     items: [],        // { dulce, cantidad }
@@ -71,6 +73,7 @@ export const CarritoProvider = ({ children }) => {
     customerCity,
     customerReference,
     deliveryDate,
+    deliveryTime,
     deliveryType,
     extras,
   } = {}) => {
@@ -83,7 +86,9 @@ export const CarritoProvider = ({ children }) => {
       customerCity: customerCity || '',
       customerReference: customerReference || '',
       deliveryDate: deliveryDate || '',
+      deliveryTime: deliveryTime || '',
       deliveryType: deliveryType || 'domicilio',
+      userId: user?.id || '',
       containerType: pedido.contenedor?.tipo || '',
       containerName: pedido.contenedor?.data?.nombre || '',
       containerPrice: costoContenedor,
@@ -111,14 +116,33 @@ export const CarritoProvider = ({ children }) => {
       id: dbOrder?.id || Date.now(),
       orderCode: dbOrder?.orderCode || null,
       fecha: new Date().toLocaleString('es-EC'),
+      userId: user?.id || null,
       ...pedido,
       total,
       status: dbOrder?.status || 'pendiente',
+      deliveryTime,
       deliveryType,
     };
 
     if (customerCedula && String(customerCedula).trim()) {
-      localStorage.setItem('lastCustomerCedula', String(customerCedula).trim());
+      const normalizedCedula = String(customerCedula).trim();
+      localStorage.setItem('lastCustomerCedula', normalizedCedula);
+
+      try {
+        const rawKnown = localStorage.getItem('knownCustomerCedulas');
+        const knownCedulas = rawKnown ? JSON.parse(rawKnown) : [];
+        const nextCedulas = Array.isArray(knownCedulas)
+          ? knownCedulas.map((v) => String(v || '').trim()).filter(Boolean)
+          : [];
+
+        if (!nextCedulas.includes(normalizedCedula)) {
+          nextCedulas.push(normalizedCedula);
+        }
+
+        localStorage.setItem('knownCustomerCedulas', JSON.stringify(nextCedulas));
+      } catch (_err) {
+        localStorage.setItem('knownCustomerCedulas', JSON.stringify([normalizedCedula]));
+      }
     }
 
     setPedidosFinalizados(prev => [nuevo, ...prev]);

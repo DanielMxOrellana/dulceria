@@ -13,10 +13,71 @@ CREATE TABLE IF NOT EXISTS customers (
   last_seen_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS user_profiles (
+  id UUID PRIMARY KEY,
+  email VARCHAR(255) NOT NULL,
+  full_name VARCHAR(120),
+  phone VARCHAR(30),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'user_profiles'
+      AND policyname = 'Users can view own profile'
+  ) THEN
+    CREATE POLICY "Users can view own profile"
+    ON user_profiles
+    FOR SELECT
+    USING (auth.uid() = id);
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'user_profiles'
+      AND policyname = 'Users can insert own profile'
+  ) THEN
+    CREATE POLICY "Users can insert own profile"
+    ON user_profiles
+    FOR INSERT
+    WITH CHECK (auth.uid() = id);
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'user_profiles'
+      AND policyname = 'Users can update own profile'
+  ) THEN
+    CREATE POLICY "Users can update own profile"
+    ON user_profiles
+    FOR UPDATE
+    USING (auth.uid() = id)
+    WITH CHECK (auth.uid() = id);
+  END IF;
+END $$;
+
 CREATE TABLE IF NOT EXISTS orders (
     id SERIAL PRIMARY KEY,
     order_code VARCHAR(24) UNIQUE,
   customer_id INT,
+    user_id UUID,
     customer_cedula VARCHAR(10),
     customer_name VARCHAR(100) NOT NULL,
     customer_email VARCHAR(100),
@@ -25,6 +86,7 @@ CREATE TABLE IF NOT EXISTS orders (
     customer_city VARCHAR(100),
     customer_reference VARCHAR(250),
     delivery_date VARCHAR(50),
+    delivery_time VARCHAR(10),
     delivery_type VARCHAR(20) DEFAULT 'domicilio',
     container_type VARCHAR(50) NOT NULL,
     container_name VARCHAR(100) NOT NULL,
@@ -37,6 +99,12 @@ CREATE TABLE IF NOT EXISTS orders (
 
   ALTER TABLE orders
   ADD COLUMN IF NOT EXISTS customer_id INT;
+
+  ALTER TABLE orders
+  ADD COLUMN IF NOT EXISTS delivery_time VARCHAR(10);
+
+  ALTER TABLE orders
+  ADD COLUMN IF NOT EXISTS user_id UUID;
 
   DO $$
   BEGIN
@@ -110,6 +178,7 @@ CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at);
 CREATE INDEX IF NOT EXISTS idx_orders_order_code ON orders(order_code);
 CREATE INDEX IF NOT EXISTS idx_orders_customer_cedula ON orders(customer_cedula);
 CREATE INDEX IF NOT EXISTS idx_orders_customer_id ON orders(customer_id);
+CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);
 CREATE INDEX IF NOT EXISTS idx_customers_cedula ON customers(cedula);
 CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);
 CREATE INDEX IF NOT EXISTS idx_order_extras_order_id ON order_extras(order_id);
@@ -123,6 +192,7 @@ SELECT
     o.id AS order_id,
     o.order_code,
   o.customer_id,
+  o.user_id,
     o.customer_cedula,
     o.customer_name,
     o.customer_email,
@@ -131,6 +201,7 @@ SELECT
     o.customer_city,
     o.customer_reference,
     o.delivery_date,
+    o.delivery_time,
     o.delivery_type,
     o.container_type,
     o.container_name,
@@ -159,6 +230,7 @@ SELECT
     o.id AS order_id,
     o.order_code,
   o.customer_id,
+  o.user_id,
     o.customer_cedula,
     o.customer_name,
     o.customer_email,
@@ -167,6 +239,7 @@ SELECT
     o.customer_city,
     o.customer_reference,
     o.delivery_date,
+    o.delivery_time,
     o.delivery_type,
     o.container_type,
     o.container_name,
@@ -189,6 +262,7 @@ SELECT
     o.id AS order_id,
     o.order_code,
   o.customer_id,
+  o.user_id,
     o.customer_cedula,
     o.customer_name,
     o.customer_email,
@@ -197,6 +271,7 @@ SELECT
     o.customer_city,
     o.customer_reference,
     o.delivery_date,
+    o.delivery_time,
     o.delivery_type,
     o.container_type,
     o.container_name,
