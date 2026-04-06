@@ -125,13 +125,103 @@
 
 /* Visual lado derecho */
 .hi-visual {
-  position: relative;
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  height: auto;
-  z-index: 1;
+  gap: 3vw;
+  width: 100%;
   margin-bottom: 0.2rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* Imágenes laterales fuera del logo */
+/* Imágenes laterales a los lados del logo */
+.hi-side-img {
+  width: 320px;
+  height: 320px;
+  object-fit: cover;
+  border-radius: 38px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.13);
+  background: #fff;
+  border: 2.5px solid #e0eafc;
+  transition: transform 0.2s;
+  z-index: 0;
+  display: block;
+}
+.hi-side-img-left {
+  margin-right: 2vw;
+}
+.hi-side-img-right {
+  margin-left: 2vw;
+}
+@media (max-width: 1400px) {
+  .hi-side-img {
+    width: 220px;
+    height: 220px;
+  }
+}
+@media (max-width: 900px) {
+  .hi-side-img {
+    width: 100px;
+    height: 100px;
+  }
+}
+@media (max-width: 600px) {
+  .hi-side-img {
+    display: none;
+  }
+}
+@media (max-width: 1400px) {
+  .hi-side-img {
+    width: 220px;
+    height: 220px;
+    top: -70px;
+  }
+  .hi-side-img-left {
+    left: -100px;
+  }
+  .hi-side-img-right {
+    right: -100px;
+  }
+}
+@media (max-width: 900px) {
+  .hi-side-img {
+    width: 100px;
+    height: 100px;
+    top: -30px;
+  }
+  .hi-side-img-left {
+    left: -30px;
+  }
+  .hi-side-img-right {
+    right: -30px;
+  }
+}
+@media (max-width: 600px) {
+  .hi-side-img {
+    display: none;
+  }
+}
+@media (max-width: 1200px) {
+  .hi-side-img {
+    width: 140px;
+    height: 140px;
+    margin: 0 1vw;
+  }
+}
+@media (max-width: 900px) {
+  .hi-side-img {
+    width: 80px;
+    height: 80px;
+    margin: 0 0.5vw;
+  }
+}
+@media (max-width: 600px) {
+  .hi-side-img {
+    display: none;
+  }
 }
 
 .hi-blob {

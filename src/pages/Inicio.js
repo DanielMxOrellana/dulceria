@@ -38,7 +38,13 @@ export default function Inicio() {
 
       {/* HERO INFO */}
       <section className="hero-info">
+
         <div className="hi-visual">
+          <img
+            src="/img/dulces/imagen 1.png"
+            alt="Dulces tradicionales 1"
+            className="hi-side-img hi-side-img-left"
+          />
           <div className="hi-blob">
             {!heroLogoError ? (
               <img
@@ -51,6 +57,11 @@ export default function Inicio() {
               <span className="hi-big-emoji">🍭</span>
             )}
           </div>
+          <img
+            src="/img/dulces/imagen 2.png"
+            alt="Dulces tradicionales 2"
+            className="hi-side-img hi-side-img-right"
+          />
         </div>
 
         <div className="hero-info-inner">
