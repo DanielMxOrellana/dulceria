@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCarrito } from '../context/CarritoContext';
-import { getOrders } from '../services/ordersApi';
+import { getOrders, subscribeOrdersChanges } from '../services/ordersApi';
 import './MisPedidos.css';
 
 const STATUS_META = {
@@ -33,6 +33,8 @@ export default function MisPedidos() {
   const [flash, setFlash] = useState('');
 
   useEffect(() => {
+    let mounted = true;
+
     const msg = sessionStorage.getItem('pedidoFlash');
     if (msg) {
       setFlash(msg);
@@ -48,13 +50,17 @@ export default function MisPedidos() {
         const filtered = all.length > 0
           ? all
           : pedidosFinalizados.filter((o) => String(o.userId || '') === String(user?.id || ''));
-        setDbOrders(filtered);
+        if (mounted) {
+          setDbOrders(filtered);
+        }
       } catch (_err) {
         if (!silent) {
-          setDbOrders([]);
+          if (mounted) {
+            setDbOrders([]);
+          }
         }
       } finally {
-        if (!silent) {
+        if (!silent && mounted) {
           setLoadingDbOrders(false);
         }
       }
@@ -64,9 +70,24 @@ export default function MisPedidos() {
 
     const syncTimer = setInterval(() => {
       loadDbOrders(true);
-    }, 15000);
+    }, 5000);
 
-    return () => clearInterval(syncTimer);
+    const unsubscribeOrders = subscribeOrdersChanges(() => {
+      loadDbOrders(true);
+    });
+
+    const handleFocus = () => {
+      loadDbOrders(true);
+    };
+
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      mounted = false;
+      clearInterval(syncTimer);
+      unsubscribeOrders();
+      window.removeEventListener('focus', handleFocus);
+    };
   }, [user?.id, pedidosFinalizados]);
 
   const pedidosMostrar = dbOrders.length > 0 ? dbOrders : pedidosFinalizados;

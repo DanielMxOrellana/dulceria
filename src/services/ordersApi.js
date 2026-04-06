@@ -3,6 +3,7 @@ import { getSupabaseClient } from "../lib/supabaseClient";
 const API_BASE = process.env.REACT_APP_API_URL || "http://localhost:4000";
 const ORDERS_PROVIDER = (process.env.REACT_APP_ORDERS_PROVIDER || "api").toLowerCase();
 const USE_SUPABASE = ORDERS_PROVIDER === "supabase";
+const ORDER_SYNC_KEY = "dulceria_orders_sync_v1";
 
 function normalizeOrderRow(row) {
   return {
@@ -65,6 +66,67 @@ async function parseApiResponse(response) {
   throw new Error(
     `Respuesta invalida del servidor (${response.status}). Revisa REACT_APP_API_URL (${API_BASE}). Detalle: ${snippet}`
   );
+}
+
+function broadcastOrdersChange(payload) {
+  if (typeof window === "undefined") return;
+
+  const eventPayload = {
+    ...payload,
+    ts: Date.now(),
+  };
+
+  try {
+    localStorage.setItem(ORDER_SYNC_KEY, JSON.stringify(eventPayload));
+  } catch (_err) {
+    // Si localStorage no está disponible, dependemos del polling normal.
+  }
+
+  if (typeof window.BroadcastChannel !== "function") return;
+
+  try {
+    const channel = new window.BroadcastChannel(ORDER_SYNC_KEY);
+    channel.postMessage(eventPayload);
+    channel.close();
+  } catch (_err) {
+    // Si BroadcastChannel falla, la sincronización por polling sigue funcionando.
+  }
+}
+
+export function subscribeOrdersChanges(handler) {
+  if (typeof window === "undefined" || typeof handler !== "function") {
+    return () => {};
+  }
+
+  let channel = null;
+
+  const onStorage = (event) => {
+    if (event.key !== ORDER_SYNC_KEY || !event.newValue) return;
+
+    try {
+      handler(JSON.parse(event.newValue));
+    } catch (_err) {
+      handler({ ts: Date.now() });
+    }
+  };
+
+  window.addEventListener("storage", onStorage);
+
+  if (typeof window.BroadcastChannel === "function") {
+    try {
+      channel = new window.BroadcastChannel(ORDER_SYNC_KEY);
+      channel.onmessage = (event) => handler(event.data || { ts: Date.now() });
+    } catch (_err) {
+      channel = null;
+    }
+  }
+
+  return () => {
+    window.removeEventListener("storage", onStorage);
+    if (channel) {
+      channel.close();
+    }
+  };
 }
 
 export async function createOrder(orderPayload) {
@@ -271,7 +333,12 @@ export async function getOrders(options = {}) {
 
   if (USE_SUPABASE) {
     const supabase = getSupabase();
-    let query = supabase.from("vw_admin_orders_json").select("*").order("created_at", { ascending: false });
+    let query = supabase
+      .from("orders")
+      .select(
+        "id, order_code, customer_id, user_id, customer_cedula, customer_name, customer_email, customer_phone, customer_address, customer_city, customer_reference, delivery_date, delivery_time, delivery_type, container_type, container_name, container_price, notes, total, status, created_at"
+      )
+      .order("created_at", { ascending: false });
 
     if (userId) {
       query = query.eq("user_id", userId);
@@ -283,15 +350,80 @@ export async function getOrders(options = {}) {
       throw new Error(error.message || "No se pudieron obtener pedidos");
     }
 
-    return (data || []).map(normalizeOrderRow);
+    const orders = (data || []).map(normalizeOrderRow);
+
+    if (orders.length === 0) {
+      return [];
+    }
+
+    const orderIds = orders.map((order) => Number(order.id)).filter(Boolean);
+
+    const [itemsResult, extrasResult] = await Promise.all([
+      supabase
+        .from("order_items")
+        .select("id, order_id, candy_id, candy_name, unit_price, quantity, subtotal")
+        .in("order_id", orderIds),
+      supabase
+        .from("order_extras")
+        .select("id, order_id, extra_name, unit_price, quantity, subtotal")
+        .in("order_id", orderIds),
+    ]);
+
+    if (itemsResult.error) {
+      throw new Error(itemsResult.error.message || "No se pudieron obtener los items del pedido");
+    }
+
+    if (extrasResult.error) {
+      throw new Error(extrasResult.error.message || "No se pudieron obtener los extras del pedido");
+    }
+
+    const itemsByOrderId = new Map();
+    for (const item of itemsResult.data || []) {
+      const orderId = Number(item.order_id);
+      if (!itemsByOrderId.has(orderId)) {
+        itemsByOrderId.set(orderId, []);
+      }
+      itemsByOrderId.get(orderId).push({
+        id: item.id || null,
+        candyId: item.candy_id || null,
+        candyName: item.candy_name || "",
+        unitPrice: Number(item.unit_price || 0),
+        quantity: Number(item.quantity || 0),
+        subtotal: Number(item.subtotal || 0),
+      });
+    }
+
+    const extrasByOrderId = new Map();
+    for (const extra of extrasResult.data || []) {
+      const orderId = Number(extra.order_id);
+      if (!extrasByOrderId.has(orderId)) {
+        extrasByOrderId.set(orderId, []);
+      }
+      extrasByOrderId.get(orderId).push({
+        id: extra.id || null,
+        name: extra.extra_name || "",
+        unitPrice: Number(extra.unit_price || 0),
+        quantity: Number(extra.quantity || 0),
+        subtotal: Number(extra.subtotal || 0),
+      });
+    }
+
+    return orders.map((order) => ({
+      ...order,
+      items: itemsByOrderId.get(Number(order.id)) || [],
+      extras: extrasByOrderId.get(Number(order.id)) || [],
+    }));
   }
 
   const url = new URL(`${API_BASE}/api/orders`);
   if (userId) {
     url.searchParams.set("userId", userId);
   }
+  url.searchParams.set("_ts", String(Date.now()));
 
-  const response = await fetch(url.toString());
+  const response = await fetch(url.toString(), {
+    cache: "no-store",
+  });
   const data = await parseApiResponse(response);
 
   if (!response.ok || !data.ok) {
@@ -302,12 +434,61 @@ export async function getOrders(options = {}) {
 }
 
 export async function updateOrderStatus(orderId, status, adminPassword) {
+  if (USE_SUPABASE) {
+    const supabase = getSupabase();
+    const nextStatus = String(status || "").trim().toLowerCase();
+
+    const { error: updateError } = await supabase
+      .from("orders")
+      .update({
+        status: nextStatus,
+      })
+      .eq("id", orderId);
+
+    if (updateError) {
+      throw new Error(updateError.message || "No se pudo actualizar el estado del pedido");
+    }
+
+    const { error: historyError } = await supabase.from("order_status_history").insert({
+      order_id: orderId,
+      status: nextStatus,
+    });
+
+    if (historyError) {
+      throw new Error(historyError.message || "No se pudo registrar el cambio de estado");
+    }
+
+    const { data: fullOrder, error: fullOrderError } = await supabase
+      .from("vw_admin_orders_json")
+      .select("*")
+      .eq("order_id", orderId)
+      .maybeSingle();
+
+    if (fullOrderError) {
+      return {
+        id: orderId,
+        status: nextStatus,
+      };
+    }
+
+    const normalized = fullOrder ? normalizeOrderRow(fullOrder) : { id: orderId, status: nextStatus };
+
+    broadcastOrdersChange({
+      type: "status-updated",
+      orderId,
+      status: nextStatus,
+    });
+
+    return normalized;
+  }
+
   const response = await fetch(`${API_BASE}/api/orders/${orderId}/status`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
       "X-Admin-Password": adminPassword,
     },
+    cache: "no-store",
     body: JSON.stringify({ status }),
   });
 
@@ -316,6 +497,12 @@ export async function updateOrderStatus(orderId, status, adminPassword) {
   if (!response.ok || !data.ok) {
     throw new Error(data.error || "No se pudo actualizar el estado del pedido");
   }
+
+  broadcastOrdersChange({
+    type: "status-updated",
+    orderId,
+    status,
+  });
 
   return data.order;
 }
