@@ -206,6 +206,45 @@ export const authApi = {
     return data || null;
   },
 
+  async updateProfile({ fullName, phone }) {
+    const supabase = getSupabaseClientSafe();
+    if (!supabase) {
+      throw new Error("Supabase no esta configurado.");
+    }
+
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError) {
+      throw new Error(toMessage(sessionError, "No se pudo obtener la sesion"));
+    }
+
+    const currentUser = sessionData?.session?.user || null;
+    if (!currentUser?.id) {
+      throw new Error("No hay una sesion activa.");
+    }
+
+    const nextMetadata = {
+      ...(currentUser.user_metadata || {}),
+      full_name: String(fullName || "").trim(),
+      phone: String(phone || "").trim(),
+    };
+
+    const { data, error } = await supabase.auth.updateUser({
+      data: nextMetadata,
+    });
+
+    if (error) {
+      throw new Error(toMessage(error, "No se pudo actualizar el perfil"));
+    }
+
+    const updatedUser = data?.user || currentUser;
+    const profile = await upsertUserProfile({
+      ...updatedUser,
+      user_metadata: nextMetadata,
+    });
+
+    return profile || (await this.getProfile(updatedUser.id));
+  },
+
   async ensureProfile(user) {
     return upsertUserProfile(user);
   },
